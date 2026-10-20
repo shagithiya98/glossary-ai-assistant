@@ -1,11 +1,16 @@
-<header>
-  <h1>Glossary AI Assistant</h1>
-  <nav>
-    <a routerLink="/new-term" routerLinkActive="active">New Term</a>
-    <a routerLink="/terms" routerLinkActive="active">All Terms</a>
-  </nav>
+<header class="appbar">
+  <div class="appbar-in">
+    <a class="brand" routerLink="/terms">
+      <span class="brand-mark" aria-hidden="true">GA</span>
+      <span class="brand-name">Glossary Manager</span>
+    </a>
+    <nav>
+      <a routerLink="/terms" routerLinkActive="active">Terms</a>
+      <a routerLink="/new-term" routerLinkActive="active">New term</a>
+    </nav>
+  </div>
 </header>
 
-<main>
+<main class="page">
   <router-outlet></router-outlet>
 </main>

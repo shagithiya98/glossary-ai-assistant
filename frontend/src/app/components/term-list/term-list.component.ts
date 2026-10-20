@@ -57,4 +57,33 @@ export class TermListComponent implements OnInit {
       error: (err: Error) => (this.errorMessage = err.message),
     });
   }
+searchText = '';
+statusFilter: 'ALL' | 'AI_SUGGESTED' | 'HUMAN_APPROVED' = 'ALL';
+
+get approvedCount(): number {
+  return this.terms.filter(t => t.status === 'HUMAN_APPROVED').length;
 }
+
+get pendingCount(): number {
+  return this.terms.filter(t => t.status !== 'HUMAN_APPROVED').length;
+}
+
+get languageCount(): number {
+  const first = this.terms[0];
+  return first?.translations ? Object.keys(first.translations).length : 0;
+}
+
+get visibleTerms() {
+  const q = this.searchText.trim().toLowerCase();
+  return this.terms.filter(t => {
+    const matchesText = !q || t.englishTerm.toLowerCase().includes(q);
+    const matchesStatus =
+      this.statusFilter === 'ALL' ||
+      (this.statusFilter === 'HUMAN_APPROVED'
+        ? t.status === 'HUMAN_APPROVED'
+        : t.status !== 'HUMAN_APPROVED');
+    return matchesText && matchesStatus;
+  });
+}
+}
+
