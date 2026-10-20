@@ -1,0 +1,42 @@
+<section class="term-list">
+  <h2>Glossary Terms</h2>
+
+  @if (isLoading) {
+    <p>Loading terms…</p>
+  }
+
+  @if (errorMessage) {
+    <p class="error">{{ errorMessage }}</p>
+  }
+
+  @if (!isLoading && terms.length === 0 && !errorMessage) {
+    <p>No terms yet. Add one from the "New Term" tab.</p>
+  }
+
+  <table *ngIf="terms.length > 0">
+    <thead>
+      <tr>
+        <th>English Term</th>
+        <th>Status</th>
+        <th>Languages</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (term of terms; track term.id) {
+        <tr>
+          <td>{{ term.englishTerm }}</td>
+          <td>{{ term.status }}</td>
+          <td>{{ (term.translations | keyvalue).length }}</td>
+          <td>
+            <a [routerLink]="['/terms', term.id]">View</a>
+            @if (term.status !== 'HUMAN_APPROVED') {
+              <button (click)="approve(term)">Approve</button>
+            }
+            <button (click)="remove(term)" class="danger">Delete</button>
+          </td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</section>

@@ -1,0 +1,5 @@
+.term-detail { margin-top: 1rem; }
+a { display: inline-block; margin-bottom: 1rem; text-decoration: none; color: #1a56db; }
+.status { color: #666; }
+table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
+th, td { text-align: left; padding: 0.5rem; border-bottom: 1px solid #eee; }

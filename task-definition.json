@@ -1,0 +1,36 @@
+{
+  "family": "glossary-ai-assistant-task",
+  "networkMode": "awsvpc",
+  "requiresCompatibilities": ["FARGATE"],
+  "cpu": "256",
+  "memory": "512",
+  "runtimePlatform": {
+    "cpuArchitecture": "ARM64",
+    "operatingSystemFamily": "LINUX"
+  },
+  "executionRoleArn": "arn:aws:iam::085642088022:role/ecsTaskExecutionRole",
+  "containerDefinitions": [
+    {
+      "name": "glossary-ai-assistant",
+      "image": "085642088022.dkr.ecr.us-east-1.amazonaws.com/glossary-ai-assistant:latest",
+      "portMappings": [{ "containerPort": 8080, "protocol": "tcp" }],
+      "essential": true,
+      "secrets": [
+        { "name": "SPRING_DATASOURCE_PASSWORD", "valueFrom": "arn:aws:secretsmanager:us-east-1:085642088022:secret:glossary-ai-assistant/db-password-rJyEul" },
+        { "name": "GROQ_API_KEY", "valueFrom": "arn:aws:secretsmanager:us-east-1:085642088022:secret:glossary-ai-assistant/groq-api-key-paItKf" }
+      ],
+      "environment": [
+        { "name": "SPRING_DATASOURCE_URL", "value": "jdbc:postgresql://glossary-manager-db.cc3egie02jv8.us-east-1.rds.amazonaws.com:5432/glossary_ai_db" },
+        { "name": "SPRING_DATASOURCE_USERNAME", "value": "postgres" }
+      ],
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "/ecs/glossary-ai-assistant",
+          "awslogs-region": "us-east-1",
+          "awslogs-stream-prefix": "backend"
+        }
+      }
+    }
+  ]
+}

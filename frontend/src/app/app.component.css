@@ -1,0 +1,4 @@
+:host { display: block; font-family: system-ui, sans-serif; max-width: 800px; margin: 0 auto; padding: 1rem; }
+header { display: flex; align-items: center; gap: 2rem; border-bottom: 1px solid #ddd; padding-bottom: 1rem; margin-bottom: 1.5rem; }
+nav a { margin-right: 1rem; text-decoration: none; color: #555; }
+nav a.active { color: #1a56db; font-weight: 600; }

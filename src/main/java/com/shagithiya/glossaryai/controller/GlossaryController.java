@@ -27,6 +27,14 @@ public class GlossaryController {
     }
 
     /**
+     * Returns one term with its full translation map, for the detail view.
+     */
+    @GetMapping("/terms/{id}")
+    public ResponseEntity<GlossaryTerm> getTermById(@PathVariable Long id) {
+        return ResponseEntity.ok(glossaryService.getTermById(id));
+    }
+
+    /**
      * Core AI endpoint: given an English term, checks for near-duplicates
      * and generates draft translations across all 14 supported languages
      * in a single structured LLM call.

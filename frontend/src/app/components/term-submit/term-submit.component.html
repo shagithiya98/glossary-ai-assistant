@@ -1,0 +1,59 @@
+<section class="term-submit">
+  <h2>Add a New Glossary Term</h2>
+
+  <form [formGroup]="termForm" (ngSubmit)="onSubmit()">
+    <div class="field">
+      <label for="englishTerm">English Term *</label>
+      <input
+        id="englishTerm"
+        type="text"
+        formControlName="englishTerm"
+        placeholder="e.g. Unemployment Insurance"
+      />
+      @if (englishTerm?.invalid && englishTerm?.touched) {
+        <span class="error">English term is required (min 2 characters).</span>
+      }
+    </div>
+
+    <div class="field">
+      <label for="definition">Definition</label>
+      <textarea
+        id="definition"
+        formControlName="definition"
+        rows="3"
+        placeholder="Optional context to improve translation accuracy"
+      ></textarea>
+    </div>
+
+    <button type="submit" [disabled]="isSubmitting">
+      {{ isSubmitting ? 'Translating…' : 'Generate Translations' }}
+    </button>
+  </form>
+
+  @if (errorMessage) {
+    <p class="error">{{ errorMessage }}</p>
+  }
+
+  @if (similarWarnings.length > 0) {
+    <div class="warning-box">
+      <strong>Possible duplicate terms found:</strong>
+      <ul>
+        @for (match of similarWarnings; track match.existingTerm) {
+          <li>{{ match.existingTerm }} ({{ (match.similarityScore * 100).toFixed(0) }}% match) — {{ match.reason }}</li>
+        }
+      </ul>
+    </div>
+  }
+
+  @if (lastResult) {
+    <div class="result-box">
+      <h3>{{ lastResult.term.englishTerm }}</h3>
+      <p><em>Status: {{ lastResult.term.status }}</em></p>
+      <ul>
+        @for (lang of (lastResult.term.translations | keyvalue); track lang.key) {
+          <li><strong>{{ lang.key }}:</strong> {{ lang.value }}</li>
+        }
+      </ul>
+    </div>
+  }
+</section>

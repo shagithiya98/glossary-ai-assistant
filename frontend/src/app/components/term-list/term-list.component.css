@@ -1,0 +1,4 @@
+table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
+th, td { text-align: left; padding: 0.5rem; border-bottom: 1px solid #eee; }
+button { margin-right: 0.5rem; padding: 0.3rem 0.8rem; cursor: pointer; }
+button.danger { background: #fdecea; border: 1px solid #e74c3c; }

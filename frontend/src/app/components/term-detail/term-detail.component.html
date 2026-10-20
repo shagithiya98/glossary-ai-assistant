@@ -1,0 +1,37 @@
+<section class="term-detail">
+  <a routerLink="/terms">&larr; Back to all terms</a>
+
+  @if (isLoading) {
+    <p>Loading term…</p>
+  }
+
+  @if (errorMessage) {
+    <p class="error">{{ errorMessage }}</p>
+  }
+
+  @if (term) {
+    <h2>{{ term.englishTerm }}</h2>
+    <p class="status"><em>Status: {{ term.status }}</em></p>
+
+    @if (term.definition) {
+      <p class="definition">{{ term.definition }}</p>
+    }
+
+    <table>
+      <thead>
+        <tr>
+          <th>Language Code</th>
+          <th>Translation</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (lang of (term.translations | keyvalue); track lang.key) {
+          <tr>
+            <td>{{ lang.key }}</td>
+            <td>{{ lang.value }}</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  }
+</section>

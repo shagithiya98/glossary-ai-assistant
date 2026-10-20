@@ -52,6 +52,11 @@ public class GlossaryService {
         return repository.save(term);
     }
 
+    public GlossaryTerm getTermById(Long id) {
+        return repository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Term not found: " + id));
+    }
+
     public GlossaryTerm approveTerm(Long id) {
         GlossaryTerm term = repository.findById(id)
             .orElseThrow(() -> new RuntimeException("Term not found: " + id));
