@@ -3,12 +3,12 @@ package com.shagithiya.glossaryai.document;
 import java.util.List;
 
 import org.bson.Document;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
 import org.springframework.data.mongodb.core.aggregation.AggregationResults;
 import org.springframework.stereotype.Service;
-import org.springframework.cache.annotation.Cacheable;
 
 @Service
 public class GlossaryStatsService {
@@ -45,4 +45,6 @@ public class GlossaryStatsService {
                             .aggregate(stages)
                             .into(new java.util.ArrayList<>());
     }
+    
+   
 }

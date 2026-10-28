@@ -1,12 +1,8 @@
 <section class="term-detail">
-  <a class="back" routerLink="/terms">&larr; Back to terms</a>
+  <a class="back" routerLink="/terms">&larr; All terms</a>
 
   @if (isLoading) {
-    <div class="card">
-      <div class="state">
-        <span class="spinner" aria-hidden="true"></span> Loading term…
-      </div>
-    </div>
+    <div class="state"><span class="spinner" aria-hidden="true"></span>Loading term</div>
   }
 
   @if (errorMessage) {
@@ -14,32 +10,26 @@
   }
 
   @if (term) {
-    <div class="card card-pad">
-      <div class="result-head">
-        <h2>{{ term.englishTerm }}</h2>
-        <span class="badge" [class.ok]="term.status === 'HUMAN_APPROVED'">
-          <span class="dot" aria-hidden="true"></span>
-          {{ term.status === 'HUMAN_APPROVED' ? 'Approved' : 'AI suggested' }}
-        </span>
-      </div>
+    <div class="detail-head">
+      <h2>{{ term.englishTerm }}</h2>
+      <span class="status" [class.ok]="term.status === 'HUMAN_APPROVED'"
+                           [class.warn]="term.status !== 'HUMAN_APPROVED'">
+        {{ term.status === 'HUMAN_APPROVED' ? 'approved' : 'awaiting review' }}
+      </span>
       @if (term.definition) {
         <p class="definition">{{ term.definition }}</p>
       }
     </div>
 
-    <div class="card">
-      <div class="card-head">
-        <h3>Translations</h3>
-        <span class="count">{{ (term.translations | keyvalue).length }} languages</span>
-      </div>
-      <div class="langs pad">
-        @for (lang of (term.translations | keyvalue); track lang.key) {
-          <div class="lang">
-            <span class="lang-code">{{ lang.key }}</span>
-            <span class="lang-value">{{ lang.value }}</span>
-          </div>
-        }
-      </div>
+    <p class="section-label">{{ (term.translations | keyvalue).length }} translations</p>
+
+    <div class="langs">
+      @for (lang of (term.translations | keyvalue); track lang.key) {
+        <div class="lang">
+          <span class="lang-code">{{ lang.key }}</span>
+          <span class="lang-value">{{ lang.value }}</span>
+        </div>
+      }
     </div>
   }
 </section>

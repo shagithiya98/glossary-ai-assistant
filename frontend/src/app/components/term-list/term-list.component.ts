@@ -16,6 +16,9 @@ export class TermListComponent implements OnInit {
   isLoading = false;
   errorMessage: string | null = null;
 
+  searchText = '';
+  statusFilter: 'ALL' | 'AI_SUGGESTED' | 'HUMAN_APPROVED' = 'ALL';
+
   constructor(private api: GlossaryApiService) {}
 
   ngOnInit(): void {
@@ -57,33 +60,70 @@ export class TermListComponent implements OnInit {
       error: (err: Error) => (this.errorMessage = err.message),
     });
   }
-searchText = '';
-statusFilter: 'ALL' | 'AI_SUGGESTED' | 'HUMAN_APPROVED' = 'ALL';
 
-get approvedCount(): number {
-  return this.terms.filter(t => t.status === 'HUMAN_APPROVED').length;
-}
+  // ── coverage matrix ────────────────────────────────────────────
 
-get pendingCount(): number {
-  return this.terms.filter(t => t.status !== 'HUMAN_APPROVED').length;
-}
+  /**
+   * Every language code seen across all terms, in a stable order.
+   * Built from the whole list, not just the first term, so a term
+   * that is missing a language still gets a column for it.
+   */
+  get languages(): string[] {
+    const codes = new Set<string>();
+    for (const term of this.terms) {
+      for (const code of Object.keys(term.translations ?? {})) {
+        codes.add(code);
+      }
+    }
+    return [...codes].sort();
+  }
 
-get languageCount(): number {
-  const first = this.terms[0];
-  return first?.translations ? Object.keys(first.translations).length : 0;
-}
+  get languageCount(): number {
+    return this.languages.length;
+  }
 
-get visibleTerms() {
-  const q = this.searchText.trim().toLowerCase();
-  return this.terms.filter(t => {
-    const matchesText = !q || t.englishTerm.toLowerCase().includes(q);
-    const matchesStatus =
-      this.statusFilter === 'ALL' ||
-      (this.statusFilter === 'HUMAN_APPROVED'
-        ? t.status === 'HUMAN_APPROVED'
-        : t.status !== 'HUMAN_APPROVED');
-    return matchesText && matchesStatus;
-  });
-}
-}
+  /** Empty cells across the whole matrix — the work still to do. */
+  get missingCount(): number {
+    const total = this.terms.length * this.languageCount;
+    const filled = this.terms.reduce(
+      (sum, term) => sum + this.translatedCount(term),
+      0
+    );
+    return Math.max(total - filled, 0);
+  }
 
+  hasTranslation(term: GlossaryTerm, code: string): boolean {
+    const value = (term.translations as Record<string, string> | undefined)?.[code];
+    return typeof value === 'string' && value.trim().length > 0;
+  }
+
+  translatedCount(term: GlossaryTerm): number {
+    return this.languages.filter((code) => this.hasTranslation(term, code)).length;
+  }
+
+  // ── counts and filtering ───────────────────────────────────────
+
+  get approvedCount(): number {
+    return this.terms.filter((t) => t.status === 'HUMAN_APPROVED').length;
+  }
+
+  get pendingCount(): number {
+    return this.terms.filter((t) => t.status !== 'HUMAN_APPROVED').length;
+  }
+
+  get visibleTerms(): GlossaryTerm[] {
+    const q = this.searchText.trim().toLowerCase();
+    return this.terms.filter((t) => {
+      const matchesText =
+        !q ||
+        t.englishTerm.toLowerCase().includes(q) ||
+        (t.definition ?? '').toLowerCase().includes(q);
+      const matchesStatus =
+        this.statusFilter === 'ALL' ||
+        (this.statusFilter === 'HUMAN_APPROVED'
+          ? t.status === 'HUMAN_APPROVED'
+          : t.status !== 'HUMAN_APPROVED');
+      return matchesText && matchesStatus;
+    });
+  }
+}

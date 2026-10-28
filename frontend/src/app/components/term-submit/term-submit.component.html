@@ -1,16 +1,14 @@
 <section class="term-submit">
-  <div class="page-head">
+
+  <div class="ledger-head">
     <div>
-      <h2>Add a term</h2>
-      <p class="page-sub">
-        The model drafts translations across every supported language. Nothing is published
-        until a human approves it.
-      </p>
+      <h2>Add term</h2>
+      <p>The model drafts a translation for every supported language. Each one waits for a reviewer before it goes live.</p>
     </div>
-    <a class="btn btn-ghost" routerLink="/terms">Back to terms</a>
+    <a class="btn btn-ghost" routerLink="/terms">Cancel</a>
   </div>
 
-  <div class="card card-pad">
+  <div class="form">
     <form [formGroup]="termForm" (ngSubmit)="onSubmit()">
       <div class="field">
         <label for="englishTerm">English term <span class="req">*</span></label>
@@ -18,9 +16,9 @@
           id="englishTerm"
           type="text"
           formControlName="englishTerm"
-          placeholder="e.g. Unemployment Insurance" />
+          placeholder="unemployment insurance" />
         @if (englishTerm?.invalid && englishTerm?.touched) {
-          <span class="field-error">English term is required, minimum two characters.</span>
+          <span class="field-error">Enter a term of at least two characters.</span>
         }
       </div>
 
@@ -30,18 +28,14 @@
           id="definition"
           formControlName="definition"
           rows="3"
-          placeholder="Context that helps the model translate accurately"></textarea>
-        <span class="field-hint">
-          A short definition noticeably improves translation quality for domain terms.
-        </span>
+          placeholder="What this term means in context"></textarea>
+        <span class="field-hint">A short definition measurably improves translation quality for domain terms.</span>
       </div>
 
       <div class="form-actions">
         <button type="submit" class="btn btn-primary" [disabled]="isSubmitting">
-          @if (isSubmitting) {
-            <span class="spinner" aria-hidden="true"></span>
-          }
-          {{ isSubmitting ? 'Translating…' : 'Generate translations' }}
+          @if (isSubmitting) { <span class="spinner" aria-hidden="true"></span> }
+          {{ isSubmitting ? 'Translating' : 'Draft translations' }}
         </button>
       </div>
     </form>
@@ -53,12 +47,12 @@
 
   @if (similarWarnings.length > 0) {
     <div class="alert alert-warn">
-      <p class="alert-title">Possible duplicates</p>
+      <p class="alert-title">Similar terms already exist</p>
       <ul>
         @for (match of similarWarnings; track match.existingTerm) {
           <li>
             <strong>{{ match.existingTerm }}</strong>
-            <span class="pct">{{ (match.similarityScore * 100).toFixed(0) }}% match</span>
+            <span class="pct">{{ (match.similarityScore * 100).toFixed(0) }}%</span>
             <span class="reason">{{ match.reason }}</span>
           </li>
         }
@@ -67,22 +61,20 @@
   }
 
   @if (lastResult) {
-    <div class="card card-pad">
-      <div class="result-head">
-        <h3>{{ lastResult.term.englishTerm }}</h3>
-        <span class="badge" [class.ok]="lastResult.term.status === 'HUMAN_APPROVED'">
-          <span class="dot" aria-hidden="true"></span>
-          {{ lastResult.term.status === 'HUMAN_APPROVED' ? 'Approved' : 'AI suggested' }}
-        </span>
-      </div>
-      <div class="langs">
-        @for (lang of (lastResult.term.translations | keyvalue); track lang.key) {
-          <div class="lang">
-            <span class="lang-code">{{ lang.key }}</span>
-            <span class="lang-value">{{ lang.value }}</span>
-          </div>
-        }
-      </div>
+    <div class="detail-head" style="margin-top:28px">
+      <h2>{{ lastResult.term.englishTerm }}</h2>
+      <span class="status" [class.ok]="lastResult.term.status === 'HUMAN_APPROVED'"
+                           [class.warn]="lastResult.term.status !== 'HUMAN_APPROVED'">
+        {{ lastResult.term.status === 'HUMAN_APPROVED' ? 'approved' : 'awaiting review' }}
+      </span>
+    </div>
+    <div class="langs">
+      @for (lang of (lastResult.term.translations | keyvalue); track lang.key) {
+        <div class="lang">
+          <span class="lang-code">{{ lang.key }}</span>
+          <span class="lang-value">{{ lang.value }}</span>
+        </div>
+      }
     </div>
   }
 </section>

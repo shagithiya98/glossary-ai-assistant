@@ -1,109 +1,114 @@
 <section class="term-list">
-  <div class="page-head">
+
+  <div class="ledger-head">
     <div>
-      <h2>Glossary terms</h2>
-      <p class="page-sub">
-        Multilingual terminology with AI-drafted translations and a human approval step.
-      </p>
+      <h2>Terms</h2>
+      <p>Official terminology with machine-drafted translations. Nothing is published until a reviewer approves it.</p>
     </div>
-    <a class="btn btn-primary" routerLink="/new-term">New term</a>
+    <a class="btn btn-primary" routerLink="/new-term">Add term</a>
   </div>
 
-  <div class="stats">
-    <div class="stat">
-      <span class="stat-label">Total terms</span>
-      <span class="stat-value">{{ terms.length }}</span>
-    </div>
-    <div class="stat">
-      <span class="stat-label">Approved</span>
-      <span class="stat-value">{{ approvedCount }}</span>
-    </div>
-    <div class="stat">
-      <span class="stat-label">Pending review</span>
-      <span class="stat-value">{{ pendingCount }}</span>
-    </div>
-    <div class="stat">
-      <span class="stat-label">Languages</span>
-      <span class="stat-value">{{ languageCount }}</span>
-    </div>
+  <div class="ledger">
+    <span><b>{{ terms.length }}</b> terms</span>
+    <span class="ok"><b>{{ approvedCount }}</b> approved</span>
+    <span class="warn"><b>{{ pendingCount }}</b> awaiting review</span>
+    <span><b>{{ languageCount }}</b> languages</span>
+    <span><b>{{ missingCount }}</b> translations missing</span>
   </div>
 
   @if (errorMessage) {
     <p class="alert alert-error">{{ errorMessage }}</p>
   }
 
-  <div class="card">
-    <div class="card-head">
-      <div class="search">
-        <input
-          type="search"
-          placeholder="Search terms"
-          aria-label="Search terms"
-          [value]="searchText"
-          (input)="searchText = $any($event.target).value" />
-      </div>
-      <div class="chips">
-        <button type="button" class="chip" [class.on]="statusFilter === 'ALL'"
-                (click)="statusFilter = 'ALL'">All</button>
-        <button type="button" class="chip" [class.on]="statusFilter === 'AI_SUGGESTED'"
-                (click)="statusFilter = 'AI_SUGGESTED'">AI suggested</button>
-        <button type="button" class="chip" [class.on]="statusFilter === 'HUMAN_APPROVED'"
-                (click)="statusFilter = 'HUMAN_APPROVED'">Approved</button>
-      </div>
+  <div class="controls">
+    <div class="search">
+      <input
+        type="search"
+        placeholder="Filter terms"
+        aria-label="Filter terms"
+        [value]="searchText"
+        (input)="searchText = $any($event.target).value" />
     </div>
+    <div class="chips">
+      <button type="button" class="chip" [class.on]="statusFilter === 'ALL'"
+              (click)="statusFilter = 'ALL'">All</button>
+      <button type="button" class="chip" [class.on]="statusFilter === 'AI_SUGGESTED'"
+              (click)="statusFilter = 'AI_SUGGESTED'">Awaiting review</button>
+      <button type="button" class="chip" [class.on]="statusFilter === 'HUMAN_APPROVED'"
+              (click)="statusFilter = 'HUMAN_APPROVED'">Approved</button>
+    </div>
+  </div>
 
+  <div class="matrix-wrap">
     @if (isLoading) {
-      <div class="state">
-        <span class="spinner" aria-hidden="true"></span> Loading terms…
-      </div>
+      <div class="state"><span class="spinner" aria-hidden="true"></span>Loading terms</div>
     } @else if (visibleTerms.length === 0) {
-      <div class="state empty">
-        <p class="state-title">
-          {{ terms.length === 0 ? 'No terms yet' : 'Nothing matches that filter' }}
-        </p>
+      <div class="state">
+        <p class="state-title">{{ terms.length === 0 ? 'No terms yet' : 'Nothing matches that filter' }}</p>
         <p class="state-sub">
           {{ terms.length === 0
-             ? 'Add your first term and the model drafts translations across every supported language for review.'
-             : 'Try a different search or clear the status filter.' }}
+             ? 'Add a term and the model drafts a translation for every supported language, ready for review.'
+             : 'Clear the filter or search for something else.' }}
         </p>
         @if (terms.length === 0) {
-          <a class="btn btn-primary" routerLink="/new-term">Add a term</a>
+          <a class="btn btn-primary" routerLink="/new-term">Add the first term</a>
         }
       </div>
     } @else {
-      <div class="table-wrap">
-        <table>
-          <thead>
+      <table>
+        <thead>
+          <tr>
+            <th>Term</th>
+            <th>Status</th>
+            <th>Coverage</th>
+            <th class="right">Languages</th>
+            <th class="right">&nbsp;</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (term of visibleTerms; track term.id) {
             <tr>
-              <th>Term</th>
-              <th>Status</th>
-              <th class="num">Languages</th>
-              <th class="right">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            @for (term of visibleTerms; track term.id) {
-              <tr>
-                <td class="strong">{{ term.englishTerm }}</td>
-                <td>
-                  <span class="badge" [class.ok]="term.status === 'HUMAN_APPROVED'">
-                    <span class="dot" aria-hidden="true"></span>
-                    {{ term.status === 'HUMAN_APPROVED' ? 'Approved' : 'AI suggested' }}
-                  </span>
-                </td>
-                <td class="num">{{ (term.translations | keyvalue).length }}</td>
-                <td class="right actions">
-                  <a class="btn btn-ghost" [routerLink]="['/terms', term.id]">View</a>
-                  @if (term.status !== 'HUMAN_APPROVED') {
-                    <button type="button" class="btn btn-soft" (click)="approve(term)">Approve</button>
+              <td>
+                <span class="term-name">{{ term.englishTerm }}</span>
+                @if (term.definition) {
+                  <span class="term-def">{{ term.definition }}</span>
+                }
+              </td>
+              <td>
+                <span class="status" [class.ok]="term.status === 'HUMAN_APPROVED'"
+                                     [class.warn]="term.status !== 'HUMAN_APPROVED'">
+                  {{ term.status === 'HUMAN_APPROVED' ? 'approved' : 'awaiting review' }}
+                </span>
+              </td>
+              <td>
+                <span class="cells">
+                  @for (code of languages; track code) {
+                    <span class="cell"
+                          [class.has]="hasTranslation(term, code)"
+                          [class.missing]="!hasTranslation(term, code)"
+                          [title]="code + (hasTranslation(term, code) ? ': ' + term.translations[code] : ' — not translated')">
+                      {{ code }}
+                    </span>
                   }
-                  <button type="button" class="btn btn-danger-ghost" (click)="remove(term)">Delete</button>
-                </td>
-              </tr>
-            }
-          </tbody>
-        </table>
-      </div>
+                </span>
+              </td>
+              <td class="right">
+                <span class="tally" [class.full]="translatedCount(term) === languageCount">
+                  {{ translatedCount(term) }}/{{ languageCount }}
+                </span>
+              </td>
+              <td class="right">
+                <a class="btn btn-ghost" [routerLink]="['/terms', term.id]">Open</a>
+                @if (term.status !== 'HUMAN_APPROVED') {
+                  <button type="button" class="btn btn-soft" (click)="approve(term)">Approve</button>
+                }
+                <button type="button" class="btn btn-danger-ghost" (click)="remove(term)"
+                        [attr.aria-label]="'Delete ' + term.englishTerm">Delete</button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
     }
   </div>
 </section>
